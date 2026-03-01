@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const DB_PATH = process.env.DB_PATH || './database.sqlite';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const CANCELLATION_WINDOW_HOURS = 24;
 
@@ -29,7 +30,7 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // Initialize database
-const db = new sqlite3.Database('./database.sqlite', (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
     return;
@@ -1224,7 +1225,8 @@ app.put('/api/admin/credit-packs/:id', authenticateToken, isAdmin, (req, res) =>
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Start server (0.0.0.0 so it accepts connections when hosted)
+const HOST = process.env.HOST || '0.0.0.0';
+app.listen(PORT, HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT}`);
 });
