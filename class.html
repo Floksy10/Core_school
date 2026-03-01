@@ -12,7 +12,7 @@
       padding: 2rem;
     }
 
-    .class-detail-content {
+    .class-page .class-detail-content {
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -82,7 +82,7 @@
       border-bottom: 2px solid #111;
     }
 
-    .tutors-grid {
+    .class-page .class-tutors-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 2rem;
@@ -117,7 +117,7 @@
       border: 2px solid #ddd;
       overflow: hidden;
     }
-    
+
     .tutor-avatar img {
       width: 100%;
       height: 100%;
@@ -142,8 +142,58 @@
       font-size: 1.2rem;
       font-weight: 600;
       color: #111;
-      margin-bottom: 1rem;
+      margin-bottom: 0.4rem;
       text-align: center;
+    }
+
+    .tutor-pitch {
+      font-size: 0.9rem;
+      color: #555;
+      line-height: 1.4;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      max-width: 220px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .tutor-trust {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 0.3rem;
+      text-align: center;
+    }
+
+    .tutor-trust .star {
+      color: #f5a623;
+      font-weight: 700;
+    }
+
+    .tutor-trust .rating-num {
+      font-weight: 600;
+      color: #111;
+    }
+
+    .tutor-experience {
+      font-size: 0.8rem;
+      color: #999;
+      margin-bottom: 0.8rem;
+      text-align: center;
+    }
+
+    .tutor-bio {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.5;
+      text-align: center;
+      margin-bottom: 1rem;
+      max-width: 200px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .enroll-btn {
@@ -182,27 +232,27 @@
     }
   </style>
 </head>
-<body>
+<body class="class-page">
   <div class="class-detail-container">
     <div class="class-detail-content">
       <a href="index.html#disciplines" class="back-link">← Back to Classes</a>
-      
+
       <div id="loading" class="loading">Loading class information...</div>
-      
+
       <div id="classContent" style="display: none;">
         <div class="class-header">
           <h1 class="class-name" id="className">Class Name</h1>
-          
+
           <div class="class-description-box">
             <p class="class-description" id="classDescription">description...</p>
           </div>
-          
+
           <div class="class-price" id="classPrice">$ Price</div>
         </div>
 
         <div class="available-tutors-section">
           <h2 class="available-tutors-header">Available Tutors</h2>
-          <div class="tutors-grid" id="tutorsGrid">
+          <div class="class-tutors-grid" id="tutorsGrid">
             <!-- Tutor cards will be inserted here -->
           </div>
         </div>
@@ -211,98 +261,150 @@
   </div>
 
   <script>
-    // Class data
+    // Class data (static info only: name/description/price)
     const classesData = {
-      'mathematics': {
-        name: 'Mathematics',
-        description: 'Master algebra, calculus, geometry, and more with personalized tutoring sessions tailored to your learning style. Our comprehensive math program covers everything from basic arithmetic to advanced calculus, ensuring you build a strong foundation and excel in your studies.',
-        price: '$50/session',
-        tutors: [
-          { name: 'Ilya Kudrenko', image: 'img/ilya.jpg' },
-          { name: 'Nicholas Chuprynskyi', image: 'img/kolya.jpeg' }
-        ]
+      mathematics: {
+        name: "Mathematics",
+        description:
+          "Master algebra, calculus, geometry, and more with personalized tutoring sessions tailored to your learning style. Our comprehensive math program covers everything from basic arithmetic to advanced calculus, ensuring you build a strong foundation and excel in your studies.",
+        price: "$50/session",
       },
-      'biology': {
-        name: 'Biology',
-        description: 'Dive deep into cellular biology, genetics, ecology, and anatomy with expert guidance and interactive learning. Our biology program helps you understand the living world through hands-on experiments, detailed explanations, and real-world applications.',
-        price: '$50/session',
-        tutors: [
-          { name: 'Ilya Kudrenko', image: 'img/ilya.jpg' },
-          { name: 'Nicholas Chuprynskyi', image: 'img/kolya.jpeg' }
-        ]
+      biology: {
+        name: "Biology",
+        description:
+          "Dive deep into cellular biology, genetics, ecology, and anatomy with expert guidance and interactive learning. Our biology program helps you understand the living world through hands-on experiments, detailed explanations, and real-world applications.",
+        price: "$50/session",
       },
-      'ai': {
-        name: 'Artificial Intelligence',
-        description: 'Learn machine learning, neural networks, and AI fundamentals with hands-on projects and real-world applications. Our AI program covers everything from basic concepts to advanced techniques, preparing you for a career in this cutting-edge field.',
-        price: '$60/session',
-        tutors: [
-          { name: 'Ilya Kudrenko', image: 'img/ilya.jpg' },
-          { name: 'Nicholas Chuprynskyi', image: 'img/kolya.jpeg' }
-        ]
+      ai: {
+        name: "Artificial Intelligence",
+        description:
+          "Learn machine learning, neural networks, and AI fundamentals with hands-on projects and real-world applications. Our AI program covers everything from basic concepts to advanced techniques, preparing you for a career in this cutting-edge field.",
+        price: "$60/session",
       },
-      'computer-science': {
-        name: 'Computer Science',
-        description: 'Build programming skills, understand algorithms, data structures, and software engineering principles. Our comprehensive CS program covers multiple programming languages, software development practices, and computer science fundamentals.',
-        price: '$55/session',
-        tutors: [
-          { name: 'Ilya Kudrenko', image: 'img/ilya.jpg' },
-          { name: 'Nicholas Chuprynskyi', image: 'img/kolya.jpeg' }
-        ]
-      }
+      "computer-science": {
+        name: "Computer Science",
+        description:
+          "Build programming skills, understand algorithms, data structures, and software engineering principles. Our comprehensive CS program covers multiple programming languages, software development practices, and computer science fundamentals.",
+        price: "$55/session",
+      },
     };
 
     // Get class parameter from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const classId = urlParams.get('class') || 'mathematics';
+    const classId = urlParams.get("class") || "mathematics";
 
-    // Load class data
-    function loadClassData() {
-      const classData = classesData[classId];
-      
-      if (!classData) {
-        document.getElementById('loading').textContent = 'Class not found.';
+    // Map classId → tutor.subjects values stored in DB
+    const subjectKeyByClassId = {
+      mathematics: "math",
+      biology: "biology",
+      ai: "ai",
+      "computer-science": "computer-science",
+    };
+
+    const subjectKey = subjectKeyByClassId[classId] || classId;
+
+    function renderTutors(tutors) {
+      const tutorsGrid = document.getElementById("tutorsGrid");
+      tutorsGrid.innerHTML = "";
+
+      if (!tutors || tutors.length === 0) {
+        tutorsGrid.innerHTML =
+          '<p style="text-align:center; grid-column: 1 / -1;">No tutors available for this class yet.</p>';
         return;
       }
 
-      // Update class information
-      document.getElementById('className').textContent = classData.name;
-      document.getElementById('classDescription').textContent = classData.description;
-      document.getElementById('classPrice').textContent = classData.price;
+      tutors.forEach((tutor) => {
+        const tutorCard = document.createElement("div");
+        tutorCard.className = "tutor-card-detail";
 
-      // Render tutors
-      const tutorsGrid = document.getElementById('tutorsGrid');
-      tutorsGrid.innerHTML = '';
+        const hasImage = tutor.image && tutor.image !== "";
+        const avatarContent = hasImage
+          ? `<img src="${tutor.image}" alt="${tutor.name}">`
+          : `<span class="tutor-avatar-icon">👤</span>`;
 
-      classData.tutors.forEach(tutor => {
-        const tutorCard = document.createElement('div');
-        tutorCard.className = 'tutor-card-detail';
-        
-        // Check if image exists, otherwise use placeholder
-        const hasImage = tutor.image && tutor.image !== '';
-        const avatarContent = hasImage 
-          ? `<img src="${tutor.image}" alt="${tutor.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
-          : '<span class="tutor-avatar-icon">👤</span>';
-        
+        const pitchText = tutor.pitch || (tutor.bio ? tutor.bio.split('.')[0] + '.' : 'Experienced tutor');
+
+        let trustHtml = '';
+        if (tutor.rating !== null && tutor.rating !== undefined) {
+          trustHtml = `<div class="tutor-trust">
+            <span class="star">★</span>
+            <span class="rating-num">${Number(tutor.rating).toFixed(1)}</span>
+            · ${tutor.review_count || 0} reviews
+          </div>`;
+        } else {
+          trustHtml = `<div class="tutor-trust">No reviews yet</div>`;
+        }
+
+        const expParts = [];
+        if (tutor.students_count > 0) expParts.push(`${tutor.students_count} students`);
+        if (tutor.lessons_count > 0) expParts.push(`${tutor.lessons_count} sessions`);
+        const expHtml = expParts.length
+          ? `<div class="tutor-experience">${expParts.join(' · ')}</div>`
+          : '';
+
         tutorCard.innerHTML = `
           <div class="tutor-avatar">
-            <span class="tutor-heart">❤️</span>
             ${avatarContent}
           </div>
           <div class="tutor-name">${tutor.name}</div>
-          <a href="index.html#contact" class="enroll-btn">Enroll</a>
+          <div class="tutor-pitch">${pitchText}</div>
+          ${trustHtml}
+          ${expHtml}
+          <a href="schedule.html?tutorId=${encodeURIComponent(tutor.id)}&class=${encodeURIComponent(classId)}" class="enroll-btn">
+            Enroll</a>
         `;
-        
+
         tutorsGrid.appendChild(tutorCard);
       });
+    }
+
+    async function loadTutorsForClass() {
+      try {
+        const res = await fetch(`/api/tutors?subject=${encodeURIComponent(subjectKey)}`);
+        const data = await res.json();
+        renderTutors(data.tutors || []);
+      } catch (err) {
+        renderTutors([]);
+      }
+    }
+
+    function loadClassData() {
+      const classData = classesData[classId];
+
+      if (!classData) {
+        document.getElementById("loading").textContent = "Class not found.";
+        return;
+      }
+
+      // Update class info
+      document.getElementById("className").textContent = classData.name;
+      document.getElementById("classDescription").textContent = classData.description;
+      document.getElementById("classPrice").textContent = classData.price;
 
       // Show content
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('classContent').style.display = 'block';
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("classContent").style.display = "block";
     }
 
     // Load on page load
     loadClassData();
+    loadTutorsForClass();
+
+    // ===== ENROLL AUTH CHECK =====
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".enroll-btn-auth");
+  if (!btn) return;
+
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    // user logged in → go to schedule
+    window.location.href = "schedule.html";
+  } else {
+    // not logged in → go to login
+    window.location.href = "login.html";
+  }
+});
   </script>
 </body>
 </html>
-

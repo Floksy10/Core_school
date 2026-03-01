@@ -33,7 +33,7 @@
 
 
     <div class="hero-content">
-      <h1>Personalized Online Math Tutoring</h1>
+      <h1>Personalized Online Tutoring</h1>
       <p>Get 1-on-1 help from experienced tutors — learn smarter, not harder.</p>
       <div class="hero-classes">
         <a href="class.html?class=mathematics" class="hero-class-card">
@@ -118,17 +118,17 @@
   <section id="about" class="about">
     <div class="about-container">
       <div class="about-text">
-        <h2>About MathBridge</h2>
+        <h2>About Core School</h2>
         <p>
-          MathBridge is a small but dedicated online tutoring startup built by passionate educators who believe that
-          anyone can master math with the right guidance. Our mission is to make math simple, visual, and confidence-building.
+          Core School is a focused online tutoring platform built by educators who believe that
+          the right guidance makes the difference. Our mission is to make learning clear, structured, and confidence-building.
         </p>
         <p>
           Whether you’re preparing for exams, catching up on schoolwork, or aiming to get ahead,
-          our experienced tutors create personalized learning paths to fit your needs.
+          our tutors create personalized paths in each subject to fit your needs.
         </p>
         <p class="highlight">
-          Currently we specialize in <strong>Mathematics</strong>, with plans to expand into Physics and Computer Science soon.
+          We currently offer <strong>Mathematics</strong>, <strong>Biology</strong>, <strong>Artificial Intelligence</strong>, and <strong>Computer Science</strong>.
         </p>
       </div>
 
@@ -144,32 +144,12 @@
     <div class="tutors-header">
       <h2>Meet Our Tutors</h2>
       <p>
-        Experienced, friendly, and ready to help you succeed in math — our tutors make learning engaging and effective.
+        Experienced, friendly, and ready to help you succeed — our tutors make learning engaging and effective.
       </p>
     </div>
 
-    <div class="tutors-grid">
-      <!-- Tutor 1 -->
-      <div class="tutor-card">
-        <img src="img/ilya.jpg" alt="Tutor 1 photo">
-        <h3>Ilya kudrenko</h3>
-        <p class="subject">High School & College Math</p>
-        <p class="bio">
-          Ilya has 5 years of experience helping students understand algebra, calculus, and SAT math through visual examples and real-world applications.
-        </p>
-        <a href="#contact" class="book-btn">Book a Session</a>
-      </div>
-
-      <!-- Tutor 2 -->
-      <div class="tutor-card">
-        <img src="img/kolya.jpeg" alt="Tutor 2 photo">
-        <h3>Nicholas Chuprynskyi</h3>
-        <p class="subject">Advanced Mathematics & Exam Prep</p>
-        <p class="bio">
-          Nicholas specializes in calculus II, trigonometry, and competition math training. He focuses on building problem-solving skills and mathematical  intuition.
-        </p>
-        <a href="#contact" class="book-btn">Book a Session</a>
-      </div>
+    <div class="tutors-grid" id="tutorsGrid">
+     
     </div>
   </section>
 
@@ -195,7 +175,7 @@
             <div class="info-icon">✉️</div>
             <div>
               <div class="info-title">Email</div>
-              <div class="info-detail">mathbridge.tutoring@example.com</div>
+              <div class="info-detail">contact@coreschool.com</div>
             </div>
           </div>
 
@@ -516,6 +496,99 @@ if (logoutLink) {
     window.location.reload();
   });
 }
+
+// ===== LOAD ALL TUTORS ON MAIN PAGE =====
+async function loadAllTutors() {
+  const grid = document.getElementById("tutorsGrid");
+  if (!grid) return;
+
+  // optional: показываем "Loading..."
+  grid.innerHTML = `<p style="grid-column: 1 / -1; text-align:center;">Loading tutors...</p>`;
+
+  try {
+    const res = await fetch("/api/tutors");
+    const data = await res.json();
+    const tutors = data.tutors || [];
+
+    if (tutors.length === 0) {
+      grid.innerHTML = `<p style="grid-column: 1 / -1; text-align:center;">No tutors yet.</p>`;
+      return;
+    }
+
+    grid.innerHTML = ""; // очистить
+
+    tutors.forEach((t) => {
+      const card = document.createElement("div");
+      card.className = "tutor-card";
+
+      const imgHtml = t.image
+        ? `<img src="${t.image}" alt="${t.name} photo">`
+        : `<div style="
+            width:150px;height:150px;border-radius:100px;
+            background:#e0e0e0;margin:0 auto 1rem;
+            display:flex;align-items:center;justify-content:center;
+            font-size:3rem;color:#999;
+          ">👤</div>`;
+
+      let subjectText = "";
+      try {
+        const subs = t.subjects ? JSON.parse(t.subjects) : [];
+        if (Array.isArray(subs) && subs.length) subjectText = subs.join(" • ");
+      } catch (e) {
+        subjectText = t.subject || "";
+      }
+
+      const pitch = t.pitch || (t.bio ? t.bio.split('.')[0] + '.' : '');
+
+      let trustLine = '<span style="color:#888;font-size:0.85rem;">No reviews yet</span>';
+      if (t.rating !== null && t.rating !== undefined) {
+        trustLine = `<span style="color:#f5a623;font-weight:700;">★</span>
+          <strong style="color:#111;">${Number(t.rating).toFixed(1)}</strong>
+          <span style="color:#888;"> · ${t.review_count || 0} reviews</span>`;
+      }
+
+      const expParts = [];
+      if (t.students_count > 0) expParts.push(`${t.students_count} students`);
+      if (t.lessons_count > 0) expParts.push(`${t.lessons_count} sessions`);
+      const expLine = expParts.length
+        ? `<p style="font-size:0.8rem;color:#999;margin-bottom:0.3rem;">${expParts.join(' · ')}</p>`
+        : '';
+
+      card.innerHTML = `
+        ${imgHtml}
+        <h3>${t.name || "Tutor"}</h3>
+        <p class="subject">${subjectText || "Available tutor"}</p>
+        <p class="bio" style="-webkit-line-clamp:2;">${pitch}</p>
+        <p style="font-size:0.85rem;margin-bottom:0.3rem;">${trustLine}</p>
+        ${expLine}
+      `;
+
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    grid.innerHTML = `<p style="grid-column: 1 / -1; text-align:center;">Failed to load tutors.</p>`;
+    console.error("loadAllTutors error:", err);
+  }
+}
+
+// call it
+loadAllTutors();
+
+// ===== ENROLL AUTH CHECK =====
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".enroll-btn-auth");
+  if (!btn) return;
+
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    // user logged in → go to schedule
+    window.location.href = "schedule.html";
+  } else {
+    // not logged in → go to login
+    window.location.href = "login.html";
+  }
+});
 </script>
 
 </html>

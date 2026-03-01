@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Profile - MathBridge Tutoring</title>
+  <title>My Profile - Core School</title>
   <link rel="stylesheet" href="css/style.css" />
   <style>
     * {
@@ -36,6 +36,21 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-to-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #2196f3;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+      transition: color 0.2s;
+    }
+    .back-to-home:hover {
+      color: #1976d2;
     }
 
     .user-profile {
@@ -319,6 +334,136 @@
       line-height: 1;
     }
 
+    /* Class detail panel (shown when clicking a class card) */
+    .class-detail-panel {
+      display: none;
+      margin-top: 1rem;
+      padding: 1.5rem;
+      background: #f0f7ff;
+      border: 2px solid #2196f3;
+      border-radius: 12px;
+    }
+    .class-detail-panel.visible {
+      display: block;
+    }
+    .class-detail-panel h4 {
+      font-size: 1.1rem;
+      color: #111;
+      margin-bottom: 0.75rem;
+    }
+    .class-detail-panel .detail-row {
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    .class-detail-panel .detail-row strong {
+      color: #111;
+      margin-right: 0.35rem;
+    }
+    .class-detail-panel .detail-actions {
+      margin-top: 1rem;
+    }
+    .class-detail-panel .detail-actions a {
+      color: #2196f3;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .class-detail-panel .detail-actions a:hover {
+      text-decoration: underline;
+    }
+    .class-detail-panel .detail-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      color: #666;
+      cursor: pointer;
+      padding: 0 0.25rem;
+      line-height: 1;
+    }
+    .class-detail-panel .detail-close:hover {
+      color: #111;
+    }
+    .class-detail-panel .detail-events-list {
+      margin-top: 0.5rem;
+      padding-left: 1rem;
+      list-style: none;
+    }
+    .class-detail-panel .detail-events-list li {
+      padding: 0.35rem 0;
+      font-size: 0.9rem;
+      color: #333;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .class-detail-panel .detail-events-list li:last-child {
+      border-bottom: none;
+    }
+    .detail-tutor-card {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e0e4ea;
+    }
+    .detail-tutor-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #e9eef4;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      font-size: 1.8rem;
+    }
+    .detail-tutor-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .detail-tutor-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .detail-tutor-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #111;
+    }
+    .detail-tutor-pitch {
+      font-size: 0.88rem;
+      color: #555;
+      margin-top: 0.2rem;
+    }
+    .detail-tutor-trust {
+      font-size: 0.88rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
+    .detail-tutor-trust .star {
+      color: #f5a623;
+      font-weight: 700;
+    }
+    .detail-tutor-trust .rating-num {
+      font-weight: 600;
+      color: #111;
+    }
+    .detail-tutor-meta {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.3rem;
+    }
+    .detail-tutor-bio {
+      font-size: 0.88rem;
+      color: #555;
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
     /* Modal */
     .modal {
       display: none;
@@ -449,6 +594,119 @@
       color: #c33;
     }
 
+    /* Enrollment card extras */
+    .enrollment-tutor {
+      font-size: 0.9rem;
+      color: #0077ff;
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+    .enrollment-date {
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
+
+    /* Custom calendar */
+    .calendar-section {
+      margin-top: 0;
+    }
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .cal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111;
+    }
+    .cal-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .cal-nav button {
+      background: #f0f0f0;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .cal-nav button:hover {
+      background: #ddd;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .cal-day-label {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #888;
+      padding: 0.4rem 0;
+    }
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #333;
+      position: relative;
+      cursor: default;
+    }
+    .cal-cell.empty {
+      visibility: hidden;
+    }
+    .cal-cell.today {
+      font-weight: 700;
+      background: #f0f4ff;
+    }
+    .cal-cell.has-event {
+      background: #e6f0ff;
+      cursor: pointer;
+      font-weight: 600;
+      color: #0077ff;
+    }
+    .cal-cell.has-event::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0077ff;
+      position: absolute;
+      bottom: 4px;
+    }
+    .cal-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      font-size: 0.78rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .cal-cell.has-event:hover .cal-tooltip {
+      display: block;
+    }
+
     @media (max-width: 968px) {
       .profile-layout {
         flex-direction: column;
@@ -464,6 +722,7 @@
   <div class="profile-layout">
     <!-- Left Sidebar -->
     <div class="sidebar">
+      <a href="index.html" class="back-to-home">← Back to home page</a>
       <div class="user-profile">
         <div class="avatar" id="userAvatar">👤</div>
         <div>
@@ -473,20 +732,23 @@
 
       <div class="payment-section">
         <div class="payment-header">
-          <span class="payment-title">Payment info</span>
+          <span class="payment-title">Credit Balance</span>
           <div class="payment-card-icon"></div>
         </div>
 
         <div class="payment-balance">
           <div class="payment-amount">
-            $<span id="sidebarBalance">65</span>
+            <span id="sidebarBalance">—</span>
           </div>
-          <div class="payment-caption">on balance</div>
+          <div class="payment-caption">credits available</div>
+          <div class="payment-caption" id="sidebarHeld" style="color:#e67e22;margin-top:0.2rem;"></div>
         </div>
 
-        <button class="payment-btn" type="button">
-          Replenish
-        </button>
+        <a href="credits.html" style="text-decoration:none;">
+          <button class="payment-btn" type="button">
+            Replenish
+          </button>
+        </a>
       </div>
 
       <button class="logout-btn" id="logoutBtn">Log out</button>
@@ -507,9 +769,36 @@
           <div class="loading" id="classesLoading">Loading classes...</div>
           <div id="classesContent" style="display: none;">
             <div id="classesGrid" class="classes-grid"></div>
+            <div id="classDetailPanel" class="class-detail-panel">
+              <button type="button" class="detail-close" id="classDetailClose" aria-label="Close">&times;</button>
+              <h4 id="classDetailTitle">Enrollment details</h4>
+              <div id="classDetailBody"></div>
+              <div class="detail-actions" id="classDetailActions"></div>
+            </div>
             <button class="add-class-btn" id="addClassBtn">
               <span class="plus-icon">+</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Schedule Section -->
+      <div class="section-card calendar-section">
+        <div class="section-header">
+          <div class="section-title">
+            <span class="section-icon">📅</span>
+            <span>My Schedule</span>
+          </div>
+        </div>
+        <div id="calendarContainer">
+          <div class="cal-header">
+            <button class="cal-nav-btn" id="calPrev" style="background:#f0f0f0;border:none;width:32px;height:32px;border-radius:8px;font-size:1rem;cursor:pointer;">&#8592;</button>
+            <h3 id="calMonthLabel">January 2026</h3>
+            <button class="cal-nav-btn" id="calNext" style="background:#f0f0f0;border:none;width:32px;height:32px;border-radius:8px;font-size:1rem;cursor:pointer;">&#8594;</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div id="noEnrollments" style="text-align:center;color:#999;padding:1.5rem;display:none;">
+            No scheduled sessions yet. Enroll in a class to get started!
           </div>
         </div>
       </div>
@@ -530,20 +819,17 @@
   </div>
 
   <script>
-    // Check authentication
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
+
     if (!token) {
       window.location.href = 'login.html';
     }
-    
-    // Redirect admins to admin panel
+
     if (user.isAdmin) {
       window.location.href = 'admin.html';
     }
 
-    // Available classes data
     const availableClasses = {
       'mathematics': { name: 'Mathematics', icon: '📐', description: 'Master algebra, calculus, geometry, and more' },
       'biology': { name: 'Biology', icon: '🔬', description: 'Dive deep into cellular biology, genetics, and ecology' },
@@ -551,46 +837,81 @@
       'computer-science': { name: 'Computer Science', icon: '💻', description: 'Build programming skills and algorithms' }
     };
 
-    // Load user profile and classes
+    let allEnrollments = [];
+    let calYear, calMonth;
+
+    // ===================== PROFILE =====================
+
+    async function loadCreditBalance() {
+      try {
+        const res = await fetch('/api/credits/balance', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('sidebarBalance').textContent = data.available;
+          const heldEl = document.getElementById('sidebarHeld');
+          if (data.held > 0) {
+            heldEl.textContent = `${data.held} reserved`;
+          }
+        }
+      } catch (e) {
+        console.error('Balance load error:', e);
+      }
+    }
+
     async function loadProfile() {
       try {
-        const profileResponse = await fetch('http://localhost:3000/api/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+        const profileResponse = await fetch('/api/profile', {
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         const profileData = await profileResponse.json();
 
         if (profileResponse.ok) {
-          const user = profileData.user;
-          const fullName = user.firstName && user.lastName 
-            ? `${user.firstName} ${user.lastName}` 
-            : user.firstName || user.lastName || user.email.split('@')[0];
-          
+          const u = profileData.user;
+          const fullName = u.firstName && u.lastName
+            ? `${u.firstName} ${u.lastName}`
+            : u.firstName || u.lastName || u.email.split('@')[0];
+
           document.getElementById('userName').textContent = fullName;
-          
-          // Set avatar initial
+
           const avatar = document.getElementById('userAvatar');
-          if (user.firstName) {
-            avatar.textContent = user.firstName.charAt(0).toUpperCase();
+          if (u.firstName) {
+            avatar.textContent = u.firstName.charAt(0).toUpperCase();
           }
         }
 
-        // Load user classes
+        loadCreditBalance();
+        await loadEnrollments();
         await loadClasses();
       } catch (error) {
         console.error('Error loading profile:', error);
       }
     }
 
-    // Load user's enrolled classes
+    // ===================== ENROLLMENTS =====================
+
+    async function loadEnrollments() {
+      try {
+        const res = await fetch('/api/enrollments', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          allEnrollments = data.enrollments || [];
+        }
+      } catch (e) {
+        console.error('Error loading enrollments:', e);
+      }
+    }
+
+    // ===================== CLASSES =====================
+
     async function loadClasses() {
       try {
-        const response = await fetch('http://localhost:3000/api/user-classes', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+        const response = await fetch('/api/user-classes', {
+          headers: { 'Authorization': `Bearer ${token}` },
         });
 
         const data = await response.json();
@@ -605,56 +926,274 @@
       }
     }
 
-    // Render enrolled classes
+    function getBestEnrollmentForClass(classId) {
+      const forClass = allEnrollments.filter(e => e.classId === classId);
+      if (!forClass.length) return null;
+      const now = new Date();
+      const withDate = forClass.filter(e => e.eventDate);
+      const future = withDate.filter(e => new Date(e.eventDate) >= now).sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
+      if (future.length) return future[0];
+      if (withDate.length) return withDate.sort((a, b) => new Date(b.eventDate) - new Date(a.eventDate))[0];
+      return forClass.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))[0];
+    }
+
+    function getAllEnrollmentsForClass(classId) {
+      return allEnrollments.filter(e => e.classId === classId);
+    }
+
+    function hasUpcomingEvent(classId) {
+      const now = new Date();
+      return allEnrollments.some(e => e.classId === classId && e.eventDate && new Date(e.eventDate) >= now);
+    }
+
+    function buildTutorCard(enr) {
+      const avatarContent = enr.tutorImage
+        ? `<img src="${enr.tutorImage}" alt="${enr.tutorName}">`
+        : '👤';
+
+      let trustHtml = '';
+      if (enr.tutorRating !== null && enr.tutorRating !== undefined) {
+        trustHtml = `<span class="star">★</span> <span class="rating-num">${Number(enr.tutorRating).toFixed(1)}</span> · ${enr.tutorReviewCount || 0} reviews`;
+      } else {
+        trustHtml = 'No reviews yet';
+      }
+
+      const expParts = [];
+      if (enr.tutorStudentsCount > 0) expParts.push(`${enr.tutorStudentsCount} students`);
+      if (enr.tutorLessonsCount > 0) expParts.push(`${enr.tutorLessonsCount} sessions`);
+
+      let subjectsText = '';
+      if (enr.tutorSubjects) {
+        try {
+          const subs = typeof enr.tutorSubjects === 'string' ? JSON.parse(enr.tutorSubjects) : enr.tutorSubjects;
+          if (Array.isArray(subs)) subjectsText = subs.join(' · ');
+        } catch {}
+      }
+
+      return `
+        <div class="detail-tutor-card">
+          <div class="detail-tutor-avatar">${avatarContent}</div>
+          <div class="detail-tutor-info">
+            <div class="detail-tutor-name">${enr.tutorName || '—'}</div>
+            ${enr.tutorPitch ? `<div class="detail-tutor-pitch">${enr.tutorPitch}</div>` : ''}
+            <div class="detail-tutor-trust">${trustHtml}</div>
+            ${expParts.length ? `<div class="detail-tutor-meta">${expParts.join(' · ')}</div>` : ''}
+            ${subjectsText ? `<div class="detail-tutor-meta">Subjects: ${subjectsText}</div>` : ''}
+            ${enr.tutorEmail ? `<div class="detail-tutor-meta">Email: ${enr.tutorEmail}</div>` : ''}
+            ${enr.tutorPhone ? `<div class="detail-tutor-meta">Phone: ${enr.tutorPhone}</div>` : ''}
+            ${enr.tutorBio ? `<div class="detail-tutor-bio">${enr.tutorBio}</div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function showClassDetail(userClass, enrollmentsForClass) {
+      const classData = availableClasses[userClass.classId] || { name: userClass.className, icon: '📚' };
+      const panel = document.getElementById('classDetailPanel');
+      const title = document.getElementById('classDetailTitle');
+      const body = document.getElementById('classDetailBody');
+      const actions = document.getElementById('classDetailActions');
+
+      title.textContent = `You're enrolled in ${classData.name}`;
+      let html = '';
+
+      if (enrollmentsForClass && enrollmentsForClass.length > 0) {
+        // Show tutor card(s) — one per unique tutor
+        const seenTutors = new Set();
+        enrollmentsForClass.forEach(enr => {
+          if (enr.tutorId && !seenTutors.has(enr.tutorId)) {
+            seenTutors.add(enr.tutorId);
+            html += buildTutorCard(enr);
+          }
+        });
+
+        // Sort and list all sessions
+        const withDate = enrollmentsForClass.filter(e => e.eventDate).map(e => ({ ...e, sortKey: new Date(e.eventDate).getTime() }));
+        const withoutDate = enrollmentsForClass.filter(e => !e.eventDate);
+        withDate.sort((a, b) => a.sortKey - b.sortKey);
+        const sortedEnrollments = [...withDate, ...withoutDate];
+
+        if (sortedEnrollments.length > 0) {
+          html += '<div class="detail-row" style="margin-top:0.75rem;"><strong>Scheduled sessions:</strong></div><ul class="detail-events-list">';
+          sortedEnrollments.forEach(enr => {
+            if (enr.eventDate) {
+              const d = new Date(enr.eventDate);
+              const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+              const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+              html += `<li>${dateStr} at ${timeStr}</li>`;
+            } else {
+              html += '<li>Date TBD (scheduled via calendar)</li>';
+            }
+          });
+          html += '</ul>';
+        }
+        actions.innerHTML = `<a href="class.html?class=${userClass.classId}">Book another session</a>`;
+      } else {
+        html += `<div class="detail-row">No tutor or session assigned yet. Book a session to get started.</div>`;
+        actions.innerHTML = `<a href="class.html?class=${userClass.classId}">Book a session</a>`;
+      }
+      body.innerHTML = html;
+      panel.classList.add('visible');
+    }
+
+    function hideClassDetail() {
+      document.getElementById('classDetailPanel').classList.remove('visible');
+    }
+
     function renderClasses(classes) {
       const classesGrid = document.getElementById('classesGrid');
       classesGrid.innerHTML = '';
 
-      if (classes.length === 0) {
-        classesGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 2rem;">No classes enrolled yet</div>';
+      const classesWithUpcoming = classes.filter(userClass => hasUpcomingEvent(userClass.classId));
+
+      if (classesWithUpcoming.length === 0) {
+        classesGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 2rem;">No classes with upcoming sessions. Add a class and book a session to see it here.</div>';
       } else {
-        classes.forEach(userClass => {
-          const classData = availableClasses[userClass.classId] || { name: userClass.className, icon: '📚', description: '' };
+        classesWithUpcoming.forEach(userClass => {
+          const classData = availableClasses[userClass.classId] || { name: userClass.className, icon: '📚' };
+          const enrollment = getBestEnrollmentForClass(userClass.classId);
+          const tutorName = enrollment ? enrollment.tutorName : null;
+          let nextDateText = null;
+          if (enrollment && enrollment.eventDate) {
+            nextDateText = new Date(enrollment.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          } else if (enrollment) {
+            nextDateText = 'Date TBD';
+          }
+
           const classCard = document.createElement('div');
           classCard.className = 'class-card';
-          classCard.onclick = () => window.location.href = `class.html?class=${userClass.classId}`;
-          
+          classCard.onclick = () => showClassDetail(userClass, getAllEnrollmentsForClass(userClass.classId));
+
           classCard.innerHTML = `
             <span class="class-card-icon">${classData.icon}</span>
             <div class="class-card-name">${classData.name}</div>
-            <div class="class-card-tutor">Tutor</div>
+            ${tutorName ? `<div class="enrollment-tutor">Tutor: ${tutorName}</div>` : '<div class="class-card-tutor" style="color:#999;">No tutor assigned</div>'}
+            ${nextDateText ? `<div class="enrollment-date">Next session: ${nextDateText}</div>` : ''}
           `;
-          
+
           classesGrid.appendChild(classCard);
         });
       }
 
       document.getElementById('classesLoading').style.display = 'none';
       document.getElementById('classesContent').style.display = 'block';
+
+      initCalendar();
     }
 
-    // Open class selection modal
+    // ===================== CUSTOM CALENDAR =====================
+
+    function initCalendar() {
+      const now = new Date();
+      calYear = now.getFullYear();
+      calMonth = now.getMonth();
+      renderCalendar();
+
+      document.getElementById('calPrev').addEventListener('click', () => {
+        calMonth--;
+        if (calMonth < 0) { calMonth = 11; calYear--; }
+        renderCalendar();
+      });
+      document.getElementById('calNext').addEventListener('click', () => {
+        calMonth++;
+        if (calMonth > 11) { calMonth = 0; calYear++; }
+        renderCalendar();
+      });
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calGrid');
+      grid.innerHTML = '';
+
+      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      document.getElementById('calMonthLabel').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+      // Day-of-week headers (Mon..Sun)
+      const dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      dayLabels.forEach(d => {
+        const lbl = document.createElement('div');
+        lbl.className = 'cal-day-label';
+        lbl.textContent = d;
+        grid.appendChild(lbl);
+      });
+
+      const firstDay = new Date(calYear, calMonth, 1);
+      let startDay = firstDay.getDay(); // 0=Sun
+      startDay = startDay === 0 ? 6 : startDay - 1; // convert to Mon=0
+
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      const today = new Date();
+
+      // Build a map of day -> enrollments for this month
+      const eventsByDay = {};
+      allEnrollments.forEach(enr => {
+        if (!enr.eventDate) return;
+        const d = new Date(enr.eventDate);
+        if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
+          const day = d.getDate();
+          if (!eventsByDay[day]) eventsByDay[day] = [];
+          eventsByDay[day].push(enr);
+        }
+      });
+
+      // Empty cells before first day
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-cell empty';
+        grid.appendChild(empty);
+      }
+
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell';
+
+        const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === day;
+        if (isToday) cell.classList.add('today');
+
+        if (eventsByDay[day]) {
+          cell.classList.add('has-event');
+          const tooltipLines = eventsByDay[day].map(e => {
+            const time = new Date(e.eventDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            return `${e.className} with ${e.tutorName} @ ${time}`;
+          });
+          const tooltip = document.createElement('div');
+          tooltip.className = 'cal-tooltip';
+          tooltip.innerHTML = tooltipLines.join('<br>');
+          cell.appendChild(tooltip);
+        }
+
+        const num = document.createElement('span');
+        num.textContent = day;
+        cell.appendChild(num);
+
+        grid.appendChild(cell);
+      }
+
+      // Show/hide "no enrollments" message
+      const noEnrEl = document.getElementById('noEnrollments');
+      if (allEnrollments.length === 0) {
+        noEnrEl.style.display = 'block';
+      } else {
+        noEnrEl.style.display = 'none';
+      }
+    }
+
+    // ===================== MODAL =====================
+
     document.getElementById('addClassBtn').addEventListener('click', () => {
       openClassModal();
     });
 
-    // Open modal with available classes
     function openClassModal() {
       const modal = document.getElementById('classModal');
       const modalBody = document.getElementById('modalBody');
       modalBody.innerHTML = '';
 
-      // Get enrolled class IDs
-      const enrolledClassIds = Array.from(document.querySelectorAll('.class-card')).map(() => {
-        // Extract classId from card if needed
-        return '';
-      });
-
       Object.entries(availableClasses).forEach(([classId, classData]) => {
         const classItem = document.createElement('div');
         classItem.className = 'modal-class-item';
         classItem.onclick = () => selectClass(classId, classData.name);
-        
+
         classItem.innerHTML = `
           <span class="modal-class-icon">${classData.icon}</span>
           <div class="modal-class-info">
@@ -662,19 +1201,17 @@
             <div class="modal-class-desc">${classData.description}</div>
           </div>
         `;
-        
+
         modalBody.appendChild(classItem);
       });
 
       modal.classList.add('active');
     }
 
-    // Close modal
     document.getElementById('modalClose').addEventListener('click', () => {
       document.getElementById('classModal').classList.remove('active');
     });
 
-    // Close modal when clicking outside
     window.addEventListener('click', (e) => {
       const modal = document.getElementById('classModal');
       if (e.target === modal) {
@@ -682,10 +1219,9 @@
       }
     });
 
-    // Select class and enroll
     async function selectClass(classId, className) {
       try {
-        const response = await fetch('http://localhost:3000/api/user-classes', {
+        const response = await fetch('/api/user-classes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -697,7 +1233,6 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Close modal and redirect to class page
           document.getElementById('classModal').classList.remove('active');
           window.location.href = `class.html?class=${classId}`;
         } else {
@@ -708,14 +1243,16 @@
       }
     }
 
-    // Logout
+    document.getElementById('classDetailClose').addEventListener('click', hideClassDetail);
+
+    // ===================== LOGOUT =====================
+
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = 'index.html';
     });
 
-    // Load profile on page load
     loadProfile();
   </script>
 </body>

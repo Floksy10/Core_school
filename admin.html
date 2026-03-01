@@ -306,6 +306,7 @@
     <div class="admin-tabs">
       <button class="tab-btn active" data-tab="tutors">Manage Tutors</button>
       <button class="tab-btn" data-tab="users">Manage Users</button>
+      <button class="tab-btn" data-tab="credits">Credits</button>
     </div>
 
     <!-- Tutors Tab -->
@@ -318,8 +319,19 @@
             <input type="text" id="tutorName" name="name" required />
           </div>
           <div class="form-group">
-            <label for="tutorSubject">Subject</label>
-            <input type="text" id="tutorSubject" name="subject" />
+            <label>Subjects</label>
+            <div class="subject-options">
+              <label><input type="checkbox" name="subjects" value="math"> Math</label>
+              <label><input type="checkbox" name="subjects" value="biology"> Biology</label>
+              <label><input type="checkbox" name="subjects" value="ai"> AI</label>
+              <label><input type="checkbox" name="subjects" value="computer-science"> Computer Science</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="tutorPitch">Short Pitch (one-line tagline for tutor cards)</label>
+            <input type="text" id="tutorPitch" name="pitch"
+                   placeholder="e.g. Certified math tutor with 5 years of experience"
+                   maxlength="120" />
           </div>
           <div class="form-group">
             <label for="tutorBio">Bio</label>
@@ -337,6 +349,11 @@
             <label for="tutorPhone">Phone</label>
             <input type="tel" id="tutorPhone" name="phone" />
           </div>
+          <div class="form-group">
+            <label for="tutorCalendly">Calendly URL</label>
+            <input type="url" id="tutorCalendly" name="calendly_url"
+                   placeholder="https://calendly.com/tutor-name/30min" />
+          </div>
           <button type="submit" class="btn-primary">Add Tutor</button>
         </form>
       </div>
@@ -350,9 +367,11 @@
               <tr>
                 <th>Image</th>
                 <th>Name</th>
-                <th>Subject</th>
+                <th>Subjects</th>
+                <th>Pitch</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Calendly</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -385,6 +404,76 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- Credits Tab -->
+    <div id="creditsTab" class="tab-content">
+      <!-- Subject Rates -->
+      <div class="section-card">
+        <h2>Subject Rates (credits per 60 min)</h2>
+        <div class="loading" id="ratesLoading">Loading rates...</div>
+        <div class="table-container" id="ratesTableContainer" style="display:none;">
+          <table>
+            <thead>
+              <tr><th>Key</th><th>Label</th><th>Credits / 60min</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="ratesTableBody"></tbody>
+          </table>
+        </div>
+        <h3 style="margin-top:1.5rem;margin-bottom:1rem;">Add New Rate</h3>
+        <form id="addRateForm" style="display:flex;gap:.8rem;align-items:flex-end;flex-wrap:wrap;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="rateKey">Key</label>
+            <input type="text" id="rateKey" placeholder="e.g. physics" required style="width:140px;" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="rateLabel">Label</label>
+            <input type="text" id="rateLabel" placeholder="Physics" required style="width:180px;" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="rateCredits">Credits/60min</label>
+            <input type="number" id="rateCredits" min="1" required style="width:100px;" />
+          </div>
+          <button type="submit" class="btn-primary" style="height:42px;">Add</button>
+        </form>
+      </div>
+
+      <!-- Credit Packs -->
+      <div class="section-card">
+        <h2>Credit Packs</h2>
+        <div class="loading" id="packsLoading">Loading packs...</div>
+        <div class="table-container" id="packsTableContainer" style="display:none;">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Credits</th><th>Price ($)</th><th>Bonus</th><th>Active</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="packsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Credit Adjustment -->
+      <div class="section-card">
+        <h2>Adjust User Credits</h2>
+        <form id="adjustForm" style="display:flex;gap:.8rem;align-items:flex-end;flex-wrap:wrap;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="adjustUserId">User</label>
+            <select id="adjustUserId" required style="width:220px;padding:.8rem;border:1px solid #ddd;border-radius:8px;">
+              <option value="">Select user...</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="adjustAmount">Amount (+/-)</label>
+            <input type="number" id="adjustAmount" required style="width:120px;" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="adjustReason">Reason</label>
+            <input type="text" id="adjustReason" placeholder="e.g. Compensation" style="width:220px;" />
+          </div>
+          <button type="submit" class="btn-primary" style="height:42px;">Adjust</button>
+        </form>
+        <div id="adjustResult" style="margin-top:1rem;font-weight:600;"></div>
       </div>
     </div>
   </div>
@@ -456,20 +545,40 @@
       tbody.innerHTML = '';
 
       if (tutors.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No tutors found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No tutors found</td></tr>';
         return;
       }
 
       tutors.forEach(tutor => {
+        let subjectsText = '—';
+        if (tutor.subjects) {
+          try {
+            const subs =
+              typeof tutor.subjects === 'string' ? JSON.parse(tutor.subjects) : tutor.subjects;
+            if (Array.isArray(subs) && subs.length) {
+              subjectsText = subs.join(', ');
+            }
+          } catch (e) {
+            subjectsText = String(tutor.subjects);
+          }
+        }
+        const pitchText = tutor.pitch
+          ? (tutor.pitch.length > 50 ? tutor.pitch.slice(0, 50) + '…' : tutor.pitch)
+          : '—';
+        const calendlyText = tutor.calendly_url
+          ? `<a href="${tutor.calendly_url}" target="_blank" style="color:#0077ff;font-size:.85rem;">${tutor.calendly_url.length > 30 ? tutor.calendly_url.slice(0, 30) + '…' : tutor.calendly_url}</a>`
+          : '—';
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>
             ${tutor.image ? `<img src="${tutor.image}" alt="${tutor.name}" class="tutor-image">` : '—'}
           </td>
           <td>${tutor.name}</td>
-          <td>${tutor.subject || '—'}</td>
+          <td>${subjectsText}</td>
+          <td>${pitchText}</td>
           <td>${tutor.email || '—'}</td>
           <td>${tutor.phone || '—'}</td>
+          <td>${calendlyText}</td>
           <td class="actions-cell">
             <button class="btn-edit" onclick="editTutor(${tutor.id})">Edit</button>
             <button class="btn-danger" onclick="deleteTutor(${tutor.id})">Delete</button>
@@ -486,13 +595,20 @@
     document.getElementById('addTutorForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      // ✅ collect checked subjects
+      const subjects = Array.from(
+        document.querySelectorAll('input[name="subjects"]:checked')
+      ).map(cb => cb.value);
+
       const formData = {
         name: document.getElementById('tutorName').value,
-        subject: document.getElementById('tutorSubject').value || null,
+        subjects,
+        pitch: document.getElementById('tutorPitch').value || null,
         bio: document.getElementById('tutorBio').value || null,
         image: document.getElementById('tutorImage').value || null,
         email: document.getElementById('tutorEmail').value || null,
         phone: document.getElementById('tutorPhone').value || null,
+        calendly_url: document.getElementById('tutorCalendly').value || null,
       };
 
       const url = editingTutorId 
@@ -533,11 +649,23 @@
       if (!tutor) return;
 
       document.getElementById('tutorName').value = tutor.name || '';
-      document.getElementById('tutorSubject').value = tutor.subject || '';
+      document.getElementById('tutorPitch').value = tutor.pitch || '';
       document.getElementById('tutorBio').value = tutor.bio || '';
+      document.querySelectorAll('input[name="subjects"]').forEach(cb => cb.checked = false);
+
+      // ✅ tutor.subjects might be JSON string from DB, or array
+      let tutorSubjects = tutor.subjects || [];
+      if (typeof tutorSubjects === "string") {
+        try { tutorSubjects = JSON.parse(tutorSubjects); } catch { tutorSubjects = []; }
+      }
+      tutorSubjects.forEach(sub => {
+        const checkbox = document.querySelector(`input[name="subjects"][value="${sub}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
       document.getElementById('tutorImage').value = tutor.image || '';
       document.getElementById('tutorEmail').value = tutor.email || '';
       document.getElementById('tutorPhone').value = tutor.phone || '';
+      document.getElementById('tutorCalendly').value = tutor.calendly_url || '';
 
       editingTutorId = id;
       document.querySelector('.section-card h2').textContent = 'Edit Tutor';
@@ -657,9 +785,158 @@
       window.location.href = 'index.html';
     });
 
+    // ===================== CREDITS TAB =====================
+
+    let subjectRates = [];
+    let creditPacks = [];
+
+    async function loadSubjectRates() {
+      try {
+        const res = await fetch('/api/admin/subject-rates', { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        if (res.ok) { subjectRates = data.rates || []; renderRates(); }
+      } catch (e) { showMessage('Error loading rates', 'error'); }
+    }
+
+    function renderRates() {
+      const tbody = document.getElementById('ratesTableBody');
+      tbody.innerHTML = '';
+      subjectRates.forEach(r => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${r.subject_key}</td>
+          <td><input type="text" value="${r.label}" data-id="${r.id}" class="rate-label" style="border:1px solid #ddd;border-radius:6px;padding:.4rem .6rem;width:180px;"></td>
+          <td><input type="number" value="${r.credits_per_60min}" data-id="${r.id}" class="rate-credits" style="border:1px solid #ddd;border-radius:6px;padding:.4rem .6rem;width:80px;"></td>
+          <td><button class="btn-primary" style="padding:.4rem .8rem;font-size:.85rem;" onclick="saveRate(${r.id})">Save</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+      document.getElementById('ratesLoading').style.display = 'none';
+      document.getElementById('ratesTableContainer').style.display = 'block';
+    }
+
+    window.saveRate = async function(id) {
+      const label = document.querySelector(`.rate-label[data-id="${id}"]`).value;
+      const credits = parseInt(document.querySelector(`.rate-credits[data-id="${id}"]`).value);
+      try {
+        const res = await fetch(`/api/admin/subject-rates/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ label, credits_per_60min: credits }),
+        });
+        if (res.ok) showMessage('Rate updated');
+        else showMessage('Error updating rate', 'error');
+      } catch (e) { showMessage('Network error', 'error'); }
+    };
+
+    document.getElementById('addRateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        subject_key: document.getElementById('rateKey').value,
+        label: document.getElementById('rateLabel').value,
+        credits_per_60min: parseInt(document.getElementById('rateCredits').value),
+      };
+      try {
+        const res = await fetch('/api/admin/subject-rates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok) { showMessage('Rate added'); e.target.reset(); loadSubjectRates(); }
+        else showMessage(data.error || 'Error', 'error');
+      } catch (err) { showMessage('Network error', 'error'); }
+    });
+
+    async function loadCreditPacks() {
+      try {
+        const res = await fetch('/api/admin/credit-packs', { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        if (res.ok) { creditPacks = data.packs || []; renderPacks(); }
+      } catch (e) { showMessage('Error loading packs', 'error'); }
+    }
+
+    function renderPacks() {
+      const tbody = document.getElementById('packsTableBody');
+      tbody.innerHTML = '';
+      creditPacks.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="text" value="${p.name}" data-pid="${p.id}" class="pack-name" style="border:1px solid #ddd;border-radius:6px;padding:.4rem .6rem;width:120px;"></td>
+          <td><input type="number" value="${p.credits}" data-pid="${p.id}" class="pack-credits" style="border:1px solid #ddd;border-radius:6px;padding:.4rem .6rem;width:80px;"></td>
+          <td><input type="number" step="0.01" value="${p.price_usd}" data-pid="${p.id}" class="pack-price" style="border:1px solid #ddd;border-radius:6px;padding:.4rem .6rem;width:80px;"></td>
+          <td><input type="number" value="${p.bonus_credits}" data-pid="${p.id}" class="pack-bonus" style="border:1px solid #ddd;border-radius:6px;padding:.4rem .6rem;width:60px;"></td>
+          <td><input type="checkbox" data-pid="${p.id}" class="pack-active" ${p.active ? 'checked' : ''}></td>
+          <td><button class="btn-primary" style="padding:.4rem .8rem;font-size:.85rem;" onclick="savePack(${p.id})">Save</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+      document.getElementById('packsLoading').style.display = 'none';
+      document.getElementById('packsTableContainer').style.display = 'block';
+    }
+
+    window.savePack = async function(id) {
+      const name = document.querySelector(`.pack-name[data-pid="${id}"]`).value;
+      const credits = parseInt(document.querySelector(`.pack-credits[data-pid="${id}"]`).value);
+      const price_usd = parseFloat(document.querySelector(`.pack-price[data-pid="${id}"]`).value);
+      const bonus_credits = parseInt(document.querySelector(`.pack-bonus[data-pid="${id}"]`).value);
+      const active = document.querySelector(`.pack-active[data-pid="${id}"]`).checked ? 1 : 0;
+      try {
+        const res = await fetch(`/api/admin/credit-packs/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ name, credits, price_usd, bonus_credits, active }),
+        });
+        if (res.ok) showMessage('Pack updated');
+        else showMessage('Error updating pack', 'error');
+      } catch (e) { showMessage('Network error', 'error'); }
+    };
+
+    // Populate user dropdown for credit adjustments
+    async function loadAdjustUsers() {
+      try {
+        const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` } });
+        const data = await res.json();
+        if (!res.ok) return;
+        const sel = document.getElementById('adjustUserId');
+        (data.users || []).forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.id;
+          opt.textContent = `${u.firstName || ''} ${u.lastName || ''} (${u.email})`.trim();
+          sel.appendChild(opt);
+        });
+      } catch (e) {}
+    }
+
+    document.getElementById('adjustForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = parseInt(document.getElementById('adjustUserId').value);
+      const amount = parseInt(document.getElementById('adjustAmount').value);
+      const reason = document.getElementById('adjustReason').value || undefined;
+      if (!userId) return showMessage('Select a user', 'error');
+      try {
+        const res = await fetch('/api/admin/credits/adjust', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ userId, amount, reason }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('adjustResult').textContent = `Done. New balance: ${data.newBalance} credits`;
+          document.getElementById('adjustResult').style.color = '#22c55e';
+          e.target.reset();
+        } else {
+          showMessage(data.error || 'Error', 'error');
+        }
+      } catch (err) { showMessage('Network error', 'error'); }
+    });
+
     // Load data on page load
     loadTutors();
     loadUsers();
+    loadSubjectRates();
+    loadCreditPacks();
+    loadAdjustUsers();
   </script>
 </body>
 </html>

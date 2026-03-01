@@ -869,3 +869,21 @@ html {
   min-height: 100vh;
   scroll-snap-align: start;
 }
+
+
+/* ===== ENROLL BUTTON ===== */
+.enroll-btn {
+  display: inline-block;
+  background: #0077ff;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.enroll-btn:hover {
+  background: #005fcc;
+}

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule - Core School</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* чтобы не конфликтовать со style.css — всё под .schedule-page */
+    .schedule-page {
+      min-height: 100vh;
+      background: #f7f9fb;
+      padding: 2rem;
+    }
+
+    .schedule-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .schedule-back {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      color: #0077ff;
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .schedule-back:hover { color: #005fcc; }
+
+    .schedule-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .schedule-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      padding: 1.5rem;
+      border: 1px solid #eef1f5;
+    }
+
+    .tutor-top {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tutor-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 999px;
+      background: #e9eef4;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .tutor-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tutor-name {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #111;
+      margin-bottom: .2rem;
+    }
+
+    .tutor-subjects {
+      color: #0077ff;
+      font-weight: 600;
+      font-size: .95rem;
+    }
+
+    .tutor-pitch-line {
+      color: #555;
+      font-size: .9rem;
+      margin-top: .3rem;
+      line-height: 1.4;
+    }
+
+    .tutor-trust-line {
+      margin-top: .6rem;
+      font-size: .9rem;
+      color: #888;
+    }
+    .tutor-trust-line .star { color: #f5a623; font-weight: 700; }
+    .tutor-trust-line .rating-num { font-weight: 600; color: #111; }
+
+    .tutor-exp-line {
+      font-size: .85rem;
+      color: #999;
+      margin-top: .2rem;
+    }
+
+    .tutor-meta {
+      margin-top: 1rem;
+      display: grid;
+      gap: .6rem;
+      color: #333;
+      font-size: .95rem;
+    }
+    .tutor-meta b { color: #111; }
+
+    .tutor-bio {
+      margin-top: 1rem;
+      color: #555;
+      line-height: 1.6;
+      font-size: .95rem;
+      white-space: pre-wrap;
+    }
+
+    .calendar-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      padding: 1.5rem;
+      border: 1px solid #eef1f5;
+      min-height: 420px;
+    }
+    .calendar-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #111;
+    }
+
+    .calendly-container {
+      min-height: 580px;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .calendly-inline-widget {
+      min-width: 320px;
+      height: 580px;
+    }
+    .calendly-fallback {
+      border: 2px dashed rgba(0,0,0,0.18);
+      border-radius: 14px;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      background: #f7f9fb;
+    }
+    .event-scheduled-banner {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: .8rem 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    .schedule-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .schedule-enroll {
+      width: 100%;
+      max-width: 520px;
+      background: #0077ff;
+      border: none;
+      color: #fff;
+      padding: 1rem 1.2rem;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .25s;
+      box-shadow: 0 10px 25px rgba(0,119,255,0.18);
+    }
+    .schedule-enroll:hover { background: #005fcc; }
+
+    .schedule-loading {
+      text-align: center;
+      padding: 2rem;
+      color: #555;
+    }
+
+    .credit-section {
+      margin-top: 1.5rem;
+      padding: 1.2rem;
+      background: #f0f7ff;
+      border: 1px solid #d0e3ff;
+      border-radius: 12px;
+    }
+    .credit-section h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 0.8rem;
+    }
+    .duration-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .duration-btn {
+      flex: 1;
+      padding: 0.6rem;
+      border: 2px solid #d0e3ff;
+      border-radius: 8px;
+      background: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      color: #333;
+    }
+    .duration-btn.active {
+      border-color: #0077ff;
+      background: #0077ff;
+      color: #fff;
+    }
+    .duration-btn:hover:not(.active) {
+      border-color: #80b9ff;
+    }
+    .credit-cost-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      font-size: 0.92rem;
+    }
+    .credit-cost-value {
+      font-weight: 700;
+      color: #0077ff;
+      font-size: 1.1rem;
+    }
+    .credit-balance-line {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.2rem;
+    }
+    .credit-balance-line.insufficient {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .credit-balance-line a {
+      color: #0077ff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+      .schedule-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="schedule-page">
+    <div class="schedule-wrap">
+      <a class="schedule-back" href="index.html#tutors">← Back</a>
+
+      <div id="loading" class="schedule-loading">Loading tutor...</div>
+
+      <div id="content" style="display:none;">
+        <div class="schedule-layout">
+          <!-- LEFT: tutor card -->
+          <div class="schedule-card">
+            <div class="tutor-top">
+              <div class="tutor-avatar" id="tutorAvatar">👤</div>
+              <div>
+                <div class="tutor-name" id="tutorName">Tutor Name</div>
+                <div class="tutor-subjects" id="tutorSubjects">subjects</div>
+                <div class="tutor-pitch-line" id="tutorPitch" style="display:none;"></div>
+              </div>
+            </div>
+
+            <div class="tutor-trust-line" id="tutorTrust" style="display:none;"></div>
+            <div class="tutor-exp-line" id="tutorExp" style="display:none;"></div>
+
+            <div class="tutor-meta">
+              <div><b>Price:</b> <span id="tutorPrice">$50/session</span></div>
+              <div><b>Phone:</b> <span id="tutorPhone">—</span></div>
+              <div><b>Email:</b> <span id="tutorEmail">—</span></div>
+            </div>
+
+            <div class="tutor-bio" id="tutorBio"></div>
+          </div>
+
+          <!-- RIGHT: calendar -->
+          <div class="calendar-card">
+            <div class="calendar-title">Book a Session</div>
+            <div class="calendly-container" id="calendlyContainer">
+              <div class="calendly-fallback" id="calendlyFallback">
+                Loading calendar...
+              </div>
+            </div>
+            <div class="event-scheduled-banner" id="eventBanner">
+              Session scheduled! Click “Enroll” to confirm.
+            </div>
+
+            <div class="credit-section" id="creditSection">
+              <h4>Lesson Duration &amp; Cost</h4>
+              <div class="duration-selector" id="durationSelector">
+                <button class="duration-btn" data-dur="30">30 min</button>
+                <button class="duration-btn active" data-dur="60">60 min</button>
+                <button class="duration-btn" data-dur="90">90 min</button>
+              </div>
+              <div class="credit-cost-display">
+                <span>Lesson cost:</span>
+                <span class="credit-cost-value" id="creditCostValue">—</span>
+              </div>
+              <div class="credit-balance-line" id="creditBalanceLine"></div>
+            </div>
+
+            <div class="schedule-actions">
+              <button class="schedule-enroll" id="enrollBtn">Enroll</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const tutorId = params.get("tutorId");
+    const classId = params.get("class");
+
+    const priceByClassId = {
+      mathematics: "$50/session",
+      biology: "$50/session",
+      ai: "$60/session",
+      "computer-science": "$55/session",
+    };
+
+    let scheduledEventData = null;
+    let selectedDuration = 60;
+    let currentCreditCost = 0;
+    let userCreditBalance = 0;
+    const subjectKey = classId || 'mathematics';
+
+    function safeSubjects(t) {
+      try {
+        const subs = typeof t.subjects === "string" ? JSON.parse(t.subjects) : t.subjects;
+        if (Array.isArray(subs)) return subs.join(" • ");
+      } catch {}
+      return t.subject || "";
+    }
+
+    function initCalendly(url) {
+      const container = document.getElementById("calendlyContainer");
+      const fallback = document.getElementById("calendlyFallback");
+
+      if (!url) {
+        fallback.textContent = "Calendar not available for this tutor.";
+        return;
+      }
+
+      fallback.style.display = "none";
+
+      const widget = document.createElement("div");
+      widget.className = "calendly-inline-widget";
+      widget.setAttribute("data-url", url);
+      widget.style.minWidth = "320px";
+      widget.style.height = "580px";
+      container.appendChild(widget);
+
+      if (window.Calendly) {
+        window.Calendly.initInlineWidget({ url, parentElement: widget });
+      }
+    }
+
+    window.addEventListener("message", (e) => {
+      if (e.data && e.data.event === "calendly.event_scheduled") {
+        const payload = e.data.payload || {};
+        scheduledEventData = {
+          eventUri: payload.event && payload.event.uri ? payload.event.uri : "",
+          inviteeUri: payload.invitee && payload.invitee.uri ? payload.invitee.uri : "",
+        };
+
+        // Calendly may send start_time in different places; never use today as fallback
+        const startTime =
+          (payload.event && payload.event.start_time) ||
+          (payload.invitee && payload.invitee.scheduled_event_start_time) ||
+          (payload.scheduled_event && payload.scheduled_event.start_time);
+        scheduledEventData.eventDate = startTime || null;
+
+        document.getElementById("eventBanner").style.display = "block";
+      }
+    });
+
+    function setTutorUI(t) {
+      document.getElementById("tutorName").textContent = t.name || "Tutor";
+      document.getElementById("tutorSubjects").textContent = safeSubjects(t) || "";
+      document.getElementById("tutorPhone").textContent = t.phone || "—";
+      document.getElementById("tutorEmail").textContent = t.email || "—";
+      document.getElementById("tutorBio").textContent = t.bio || "";
+
+      document.getElementById("tutorPrice").textContent =
+        priceByClassId[classId] || "$50/session";
+
+      const avatar = document.getElementById("tutorAvatar");
+      if (t.image) {
+        avatar.innerHTML = `<img src="${t.image}" alt="${t.name || 'Tutor'}">`;
+      } else {
+        avatar.textContent = "👤";
+      }
+
+      const pitchEl = document.getElementById("tutorPitch");
+      if (t.pitch) {
+        pitchEl.textContent = t.pitch;
+        pitchEl.style.display = "block";
+      }
+
+      const trustEl = document.getElementById("tutorTrust");
+      if (t.rating !== null && t.rating !== undefined) {
+        trustEl.innerHTML = `<span class="star">★</span> <span class="rating-num">${Number(t.rating).toFixed(1)}</span> · ${t.review_count || 0} reviews`;
+        trustEl.style.display = "block";
+      } else {
+        trustEl.textContent = "No reviews yet";
+        trustEl.style.display = "block";
+      }
+
+      const expEl = document.getElementById("tutorExp");
+      const parts = [];
+      if (t.students_count > 0) parts.push(`${t.students_count} students`);
+      if (t.lessons_count > 0) parts.push(`${t.lessons_count} sessions`);
+      if (parts.length) {
+        expEl.textContent = parts.join(" · ");
+        expEl.style.display = "block";
+      }
+
+      initCalendly(t.calendly_url);
+    }
+
+    async function loadCreditInfo() {
+      const tkn = localStorage.getItem("token");
+      if (!tkn) return;
+      try {
+        const [balRes, costRes] = await Promise.all([
+          fetch("/api/credits/balance", { headers: { Authorization: `Bearer ${tkn}` } }),
+          fetch("/api/credits/cost-preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subjectKey, durationMinutes: selectedDuration }),
+          }),
+        ]);
+        const balData = await balRes.json();
+        const costData = await costRes.json();
+        if (balRes.ok) userCreditBalance = balData.available;
+        if (costRes.ok) currentCreditCost = costData.cost;
+        updateCreditDisplay();
+      } catch (e) {
+        console.error("Credit info error:", e);
+      }
+    }
+
+    async function updateCostPreview() {
+      try {
+        const res = await fetch("/api/credits/cost-preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subjectKey, durationMinutes: selectedDuration }),
+        });
+        const data = await res.json();
+        if (res.ok) currentCreditCost = data.cost;
+        updateCreditDisplay();
+      } catch (e) {
+        console.error("Cost preview error:", e);
+      }
+    }
+
+    function updateCreditDisplay() {
+      const costEl = document.getElementById("creditCostValue");
+      const balEl = document.getElementById("creditBalanceLine");
+      costEl.textContent = currentCreditCost > 0 ? `${currentCreditCost} credits` : "Free";
+      if (userCreditBalance > 0 || currentCreditCost > 0) {
+        if (userCreditBalance >= currentCreditCost) {
+          balEl.className = "credit-balance-line";
+          balEl.textContent = `Your balance: ${userCreditBalance} credits`;
+        } else {
+          const shortfall = currentCreditCost - userCreditBalance;
+          balEl.className = "credit-balance-line insufficient";
+          balEl.innerHTML = `Insufficient credits (need ${shortfall} more). <a href="credits.html">Buy credits</a>`;
+        }
+      }
+    }
+
+    // Duration selector
+    document.querySelectorAll(".duration-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".duration-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedDuration = parseInt(btn.dataset.dur);
+        updateCostPreview();
+      });
+    });
+
+    async function loadTutor() {
+      if (!tutorId) {
+        document.getElementById("loading").textContent = "No tutor selected.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/tutors");
+        const data = await res.json();
+
+        const tutors = data.tutors || [];
+        const tutor = tutors.find(t => String(t.id) === String(tutorId));
+
+        if (!tutor) {
+          document.getElementById("loading").textContent = "Tutor not found.";
+          return;
+        }
+
+        setTutorUI(tutor);
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("content").style.display = "block";
+
+        loadCreditInfo();
+      } catch (e) {
+        document.getElementById("loading").textContent = "Failed to load tutor.";
+      }
+    }
+
+    document.getElementById("enrollBtn").addEventListener("click", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in to enroll.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      if (!scheduledEventData) {
+        alert("Please select a time slot in the calendar first.");
+        return;
+      }
+
+      const enrollBtn = document.getElementById("enrollBtn");
+      enrollBtn.disabled = true;
+      enrollBtn.textContent = "Enrolling...";
+
+      try {
+        const res = await fetch("/api/enroll", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            tutorId: Number(tutorId),
+            classId: classId,
+            eventDate: scheduledEventData.eventDate || null,
+            eventUri: scheduledEventData.eventUri || null,
+            durationMinutes: selectedDuration,
+            subjectKey: subjectKey,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          const costMsg = data.creditsCost > 0 ? ` (${data.creditsCost} credits held)` : "";
+          alert(`Successfully enrolled${costMsg}! Redirecting to your profile...`);
+          window.location.href = "profile.html";
+        } else if (res.status === 402) {
+          alert(`Insufficient credits. You need ${data.required} credits but only have ${data.available}. Please purchase more credits.`);
+          enrollBtn.disabled = false;
+          enrollBtn.textContent = "Enroll";
+        } else {
+          alert(data.error || "Enrollment failed. Please try again.");
+          enrollBtn.disabled = false;
+          enrollBtn.textContent = "Enroll";
+        }
+      } catch (err) {
+        alert("Network error. Please try again.");
+        enrollBtn.disabled = false;
+        enrollBtn.textContent = "Enroll";
+      }
+    });
+
+    loadTutor();
+  </script>
+</body>
+</html>
