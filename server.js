@@ -962,7 +962,13 @@ app.get('/api/enrollments', authenticateToken, (req, res) => {
     [req.user.id],
     (err, rows) => {
       if (err) return res.status(500).json({ error: 'Database error' });
-      res.json({ enrollments: rows });
+      // Normalize so frontend always gets camelCase (eventDate, lessonStatus)
+      const enrollments = (rows || []).map(r => ({
+        ...r,
+        eventDate: r.eventDate ?? r.event_date ?? null,
+        lessonStatus: r.lessonStatus ?? r.lesson_status ?? 'scheduled',
+      }));
+      res.json({ enrollments });
     }
   );
 });

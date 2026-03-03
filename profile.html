@@ -952,13 +952,18 @@
       }
     }
 
+    // Normalize enrollment fields (API may return eventDate or event_date)
+    function getEventDate(e) { return e.eventDate ?? e.event_date ?? null; }
+    function getLessonStatus(e) { return e.lessonStatus ?? e.lesson_status ?? 'scheduled'; }
+
     // Only scheduled, non-expired enrollments (exclude canceled/completed and past events)
     function getActiveEnrollments() {
       const now = new Date();
       return allEnrollments.filter(e => {
-        if (e.lessonStatus && e.lessonStatus !== 'scheduled') return false;
-        if (!e.eventDate) return true;
-        return new Date(e.eventDate) >= now;
+        if (getLessonStatus(e) !== 'scheduled') return false;
+        const eventDate = getEventDate(e);
+        if (!eventDate) return true;
+        return new Date(eventDate) >= now;
       });
     }
 
@@ -985,10 +990,10 @@
     function getBestEnrollmentForClass(classId) {
       const forClass = getActiveEnrollments().filter(e => e.classId === classId);
       if (!forClass.length) return null;
-      const withDate = forClass.filter(e => e.eventDate);
-      const future = withDate.filter(e => new Date(e.eventDate) >= new Date()).sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
+      const withDate = forClass.filter(e => getEventDate(e));
+      const future = withDate.filter(e => new Date(getEventDate(e)) >= new Date()).sort((a, b) => new Date(getEventDate(a)) - new Date(getEventDate(b)));
       if (future.length) return future[0];
-      if (withDate.length) return withDate.sort((a, b) => new Date(b.eventDate) - new Date(a.eventDate))[0];
+      if (withDate.length) return withDate.sort((a, b) => new Date(getEventDate(b)) - new Date(getEventDate(a)))[0];
       return forClass.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))[0];
     }
 
@@ -997,7 +1002,7 @@
     }
 
     function hasUpcomingEvent(classId) {
-      return getActiveEnrollments().some(e => e.classId === classId && e.eventDate && new Date(e.eventDate) >= new Date());
+      return getActiveEnrollments().some(e => e.classId === classId && getEventDate(e) && new Date(getEventDate(e)) >= new Date());
     }
 
     function buildTutorCard(enr) {
@@ -1061,17 +1066,17 @@
         });
 
         // Sort and list all sessions
-        const withDate = enrollmentsForClass.filter(e => e.eventDate).map(e => ({ ...e, sortKey: new Date(e.eventDate).getTime() }));
-        const withoutDate = enrollmentsForClass.filter(e => !e.eventDate);
+        const withDate = enrollmentsForClass.filter(e => getEventDate(e)).map(e => ({ ...e, sortKey: new Date(getEventDate(e)).getTime() }));
+        const withoutDate = enrollmentsForClass.filter(e => !getEventDate(e));
         withDate.sort((a, b) => a.sortKey - b.sortKey);
         const sortedEnrollments = [...withDate, ...withoutDate];
 
         if (sortedEnrollments.length > 0) {
           html += '<div class="detail-row" style="margin-top:0.75rem;"><strong>Scheduled sessions:</strong></div><ul class="detail-events-list">';
           sortedEnrollments.forEach(enr => {
-            const isFuture = enr.eventDate && new Date(enr.eventDate) >= new Date();
-            if (enr.eventDate) {
-              const d = new Date(enr.eventDate);
+            const isFuture = getEventDate(enr) && new Date(getEventDate(enr)) >= new Date();
+            if (getEventDate(enr)) {
+              const d = new Date(getEventDate(enr));
               const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
               const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
               html += `<li class="detail-event-item"><span>${dateStr} at ${timeStr}</span>`;
@@ -1138,8 +1143,8 @@
           const enrollment = getBestEnrollmentForClass(userClass.classId);
           const tutorName = enrollment ? enrollment.tutorName : null;
           let nextDateText = null;
-          if (enrollment && enrollment.eventDate) {
-            nextDateText = new Date(enrollment.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          if (enrollment && getEventDate(enrollment)) {
+            nextDateText = new Date(getEventDate(enrollment)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
           } else if (enrollment) {
             nextDateText = 'Date TBD';
           }
@@ -1211,8 +1216,9 @@
       // Build a map of day -> enrollments for this month (only active)
       const eventsByDay = {};
       getActiveEnrollments().forEach(enr => {
-        if (!enr.eventDate) return;
-        const d = new Date(enr.eventDate);
+        const eventDate = getEventDate(enr);
+        if (!eventDate) return;
+        const d = new Date(eventDate);
         if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
           const day = d.getDate();
           if (!eventsByDay[day]) eventsByDay[day] = [];
@@ -1238,7 +1244,7 @@
         if (eventsByDay[day]) {
           cell.classList.add('has-event');
           const tooltipLines = eventsByDay[day].map(e => {
-            const time = new Date(e.eventDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const time = new Date(getEventDate(e)).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             return `${e.className} with ${e.tutorName} @ ${time}`;
           });
           const tooltip = document.createElement('div');
