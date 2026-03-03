@@ -846,6 +846,10 @@
           <div id="noEnrollments" style="text-align:center;color:#999;padding:1.5rem;display:none;">
             No scheduled sessions yet. Enroll in a class to get started!
           </div>
+          <div id="tbdSessions" style="display:none;margin-top:1rem;padding:0.75rem;background:#f8f9fa;border-radius:8px;font-size:0.9rem;">
+            <strong>Sessions with date TBD:</strong>
+            <ul id="tbdSessionsList" style="margin:0.5rem 0 0 1.25rem;padding:0;"></ul>
+          </div>
         </div>
       </div>
     </div>
@@ -1001,8 +1005,14 @@
       return getActiveEnrollments().filter(e => e.classId === classId);
     }
 
+    // Show class if user has any active enrollment (with a date or "Date TBD")
     function hasUpcomingEvent(classId) {
-      return getActiveEnrollments().some(e => e.classId === classId && getEventDate(e) && new Date(getEventDate(e)) >= new Date());
+      return getActiveEnrollments().some(e => {
+        if (e.classId !== classId) return false;
+        const eventDate = getEventDate(e);
+        if (!eventDate) return true; // show "Date TBD" sessions
+        return new Date(eventDate) >= new Date();
+      });
     }
 
     function buildTutorCard(enr) {
@@ -1260,12 +1270,26 @@
         grid.appendChild(cell);
       }
 
-      // Show/hide "no enrollments" message (based on active only)
+      // Show/hide "no enrollments" message and "Date TBD" list
+      const active = getActiveEnrollments();
       const noEnrEl = document.getElementById('noEnrollments');
-      if (getActiveEnrollments().length === 0) {
+      const tbdEl = document.getElementById('tbdSessions');
+      const tbdList = document.getElementById('tbdSessionsList');
+      const tbdEnrollments = active.filter(e => !getEventDate(e));
+
+      if (active.length === 0) {
         noEnrEl.style.display = 'block';
+        tbdEl.style.display = 'none';
       } else {
         noEnrEl.style.display = 'none';
+        if (tbdEnrollments.length > 0) {
+          tbdList.innerHTML = tbdEnrollments.map(e =>
+            `<li>${e.className || 'Session'} with ${e.tutorName || 'Tutor'}</li>`
+          ).join('');
+          tbdEl.style.display = 'block';
+        } else {
+          tbdEl.style.display = 'none';
+        }
       }
     }
 

@@ -388,15 +388,16 @@
       if (e.data && e.data.event === "calendly.event_scheduled") {
         const payload = e.data.payload || {};
         scheduledEventData = {
-          eventUri: payload.event && payload.event.uri ? payload.event.uri : "",
-          inviteeUri: payload.invitee && payload.invitee.uri ? payload.invitee.uri : "",
+          eventUri: (payload.event && payload.event.uri) || (payload.resource && payload.resource.uri) || "",
+          inviteeUri: (payload.invitee && payload.invitee.uri) || "",
         };
 
-        // Calendly may send start_time in different places; never use today as fallback
+        // Calendly may send start_time in different places depending on embed/API version
         const startTime =
           (payload.event && payload.event.start_time) ||
           (payload.invitee && payload.invitee.scheduled_event_start_time) ||
-          (payload.scheduled_event && payload.scheduled_event.start_time);
+          (payload.scheduled_event && payload.scheduled_event.start_time) ||
+          (payload.resource && payload.resource.start_time);
         scheduledEventData.eventDate = startTime || null;
 
         document.getElementById("eventBanner").style.display = "block";
