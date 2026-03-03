@@ -334,8 +334,8 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
   );
 });
 
-// Admin email
-const ADMIN_EMAIL = 'ilya.kudrenko@gmail.com';
+// Admin email (set ADMIN_EMAIL in .env or Railway variables to override)
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ilya.kudrenko@gmail.com';
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
