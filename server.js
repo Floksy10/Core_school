@@ -58,6 +58,10 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     (err) => {
       if (err) console.error('Error creating users table:', err.message);
       else console.log('Users table ready.');
+      // If ADMIN_EMAIL + ADMIN_PASSWORD are set, create or update admin user
+      setImmediate(() => {
+        ensureAdminUser().catch((e) => console.error('Ensure admin error:', e.message));
+      });
     }
   );
 
@@ -334,8 +338,9 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
   );
 });
 
-// Admin email (set ADMIN_EMAIL in .env or Railway variables to override)
+// Admin email and password (set in .env or Railway variables to create/update admin on startup)
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ilya.kudrenko@gmail.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || null;
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -358,6 +363,42 @@ const isAdmin = (req, res, next) => {
   }
   next();
 };
+
+// Ensure admin user exists (or update password) when ADMIN_EMAIL + ADMIN_PASSWORD are set
+function ensureAdminUser() {
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    db.get('SELECT id, password FROM users WHERE email = ?', [ADMIN_EMAIL], async (err, row) => {
+      if (err) return reject(err);
+      try {
+        const hashed = await bcrypt.hash(ADMIN_PASSWORD, 10);
+        if (row) {
+          db.run('UPDATE users SET password = ? WHERE id = ?', [hashed, row.id], (e) => {
+            if (e) reject(e);
+            else {
+              console.log('Admin password updated for', ADMIN_EMAIL);
+              resolve();
+            }
+          });
+        } else {
+          db.run(
+            'INSERT INTO users (email, password, firstName, lastName, phone) VALUES (?, ?, ?, ?, ?)',
+            [ADMIN_EMAIL, hashed, null, null, null],
+            function (e) {
+              if (e) reject(e);
+              else {
+                console.log('Admin user created for', ADMIN_EMAIL);
+                resolve();
+              }
+            }
+          );
+        }
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
+}
 
 // ===================== AUTH ROUTES =====================
 

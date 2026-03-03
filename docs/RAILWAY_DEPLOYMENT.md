@@ -25,6 +25,8 @@ In your Railway project:
 |----------|----------|--------|
 | `PORT` | No | Railway sets this automatically. Your app already uses `process.env.PORT`. |
 | `JWT_SECRET` | **Yes** | Use a long random string (e.g. from `openssl rand -base64 32`). |
+| `ADMIN_EMAIL` | Optional | Email of the admin user. Defaults to `ilya.kudrenko@gmail.com` if unset. |
+| `ADMIN_PASSWORD` | Optional | Admin login password. If set with `ADMIN_EMAIL`, the app creates or updates that user on startup so you can log in as admin. |
 | `STRIPE_SECRET_KEY` | **Yes** (for payments) | Your Stripe secret key (e.g. `sk_live_...` or `sk_test_...`). |
 | `STRIPE_WEBHOOK_SECRET` | **Yes** (for payments) | From Stripe Dashboard → Webhooks → endpoint for your **production** URL. |
 | `GMAIL_USER` | Optional | For email notifications. |
